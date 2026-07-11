@@ -12,8 +12,7 @@ import { ScoreboardPopup } from './components/ScoreboardPopup';
 import { CountdownScreen } from './components/CountdownScreen';
 import { playCorrectSound, playIncorrectSound, playFinishSound, playVictorySound } from './utils/audio';
 
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbwiw9aSm9ebskEKHFwpennCsxjcSczqvjDTaQclMbam--TR1q6VTHS1bPn53NL-dbKu7Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby039Qudw4CGkTuD_xXtf2HaJI2WKwyz6JGC2lpU_CPkhdK6J6oXLIU6wMzf1X-2RtSVA/exec";
 
 const INITIAL_QUESTIONS: Question[] = [
   {
@@ -401,79 +400,47 @@ export default function App() {
     setGameState('countdown');
   };
 
-  const sendScore = async () => {
+const sendScore = async () => {
+  if (!summary) return;
+  if (!teamAName.trim() || !teamBName.trim()) {
+    alert("Nhập tên cả hai đội thi đấu.");
+    return;
+  }
 
-    if (!summary) return;
+  setSending(true);
 
-    if (!teamAName.trim() || !teamBName.trim()) {
-      alert("Nhập tên cả hai đội thi đấu.");
-      return;
+  try {
+    const timestamp = new Date().toLocaleString('vi-VN');
+    let winnerText = "Hòa";
+    if (summary.winner === 'blue') {
+      winnerText = teamAName;
+    } else if (summary.winner === 'red') {
+      winnerText = teamBName;
     }
 
-    setSending(true);
+    const body = new URLSearchParams();
+    body.append("timestamp", timestamp);
+    body.append("teamXanh", teamAName);
+    body.append("teamDo", teamBName);
+    body.append("blueScore", summary.blueScore.toString());
+    body.append("redScore", summary.redScore.toString());
+    body.append("winner", winnerText);
 
-    try {
+    // Sử dụng no-cors để tránh lỗi bảo mật/CORS của trình duyệt với Google Apps Script redirects
+    await fetch(API_URL, {
+      method: "POST",
+      body: body,
+      mode: 'no-cors' 
+    });
 
-      const percent =
-        Math.round(
-          ((summary.blueCorrect + summary.redCorrect) /
-            (questions.length * 2)) *
-            100
-        ) + "%";
-
-      const details = `
-  ${teamAName} (Đội Xanh)
-  Điểm: ${summary.blueScore}
-  Đúng: ${summary.blueCorrect}
-  Sai: ${summary.blueIncorrect}
-
-  ${teamBName} (Đội Đỏ)
-  Điểm: ${summary.redScore}
-  Đúng: ${summary.redCorrect}
-  Sai: ${summary.redIncorrect}
-
-  Thời gian: ${summary.durationSeconds} giây
-
-  Kết quả: ${
-        summary.winner == "blue"
-          ? teamAName
-          : summary.winner == "red"
-          ? teamBName
-          : "Hòa"
-      }
-  `;
-
-      const body = new URLSearchParams();
-
-      body.append("hoTen", teamAName);
-      body.append("lop", teamBName);
-      body.append("teamA", teamAName);
-      body.append("teamB", teamBName);
-      body.append(
-        "diem",
-        Math.max(summary.blueScore, summary.redScore).toString()
-      );
-      body.append("percent", percent);
-      body.append("soCauHoi", questions.length.toString());
-      body.append("chiTiet", details);
-
-      await fetch(API_URL, {
-        method: "POST",
-        body
-      });
-
-      alert("Đã gửi điểm lên Google Sheet.");
-
-    } catch (e) {
-
-      console.error(e);
-
-      alert("Không thể gửi dữ liệu.");
-
-    }
-
+    alert("Đã gửi điểm lên hệ thống!");
+  } catch (e) {
+    console.error(e);
+    alert("Có lỗi xảy ra khi gửi dữ liệu.");
+  } finally {
     setSending(false);
-  };
+  }
+};
 
   return (
     <div className="min-h-screen lg:h-screen lg:max-h-screen bg-[#E0F2F1] font-sans text-slate-800 flex flex-col justify-between overflow-y-auto lg:overflow-hidden relative">
@@ -522,13 +489,13 @@ export default function App() {
             <div className="mb-4 flex flex-col sm:flex-row gap-3 w-full max-w-md bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-sm z-10">
               <input
                 className="flex-grow border-2 border-emerald-200 focus:border-emerald-500 outline-none rounded-lg px-3 py-2 text-sm transition-all"
-                placeholder="Tên đội A"
+                placeholder="Tên đội xanh"
                 value={teamAName}
                 onChange={(e)=>setTeamAName(e.target.value)}
               />
               <input
                 className="flex-grow border-2 border-emerald-200 focus:border-emerald-500 outline-none rounded-lg px-3 py-2 text-sm transition-all"
-                placeholder="Tên đội B"
+                placeholder="Tên đội đỏ"
                 value={teamBName}
                 onChange={(e)=>setTeamBName(e.target.value)}
               />
