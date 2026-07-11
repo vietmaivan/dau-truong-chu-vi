@@ -12,6 +12,7 @@ interface TeamPanelProps {
   selectedAnswerIndex: number | null;
   onAnswerSelect: (index: number) => void;
   revealCorrect: boolean;
+  teamName?: string;
 }
 
 export const TeamPanel: React.FC<TeamPanelProps> = ({
@@ -24,6 +25,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   selectedAnswerIndex,
   onAnswerSelect,
   revealCorrect,
+  teamName,
 }) => {
   const isBlue = team === 'blue';
   
@@ -45,7 +47,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <h2 className={`font-black text-lg md:text-xl uppercase tracking-wider ${teamTextClass}`}>
-            ĐỘI {isBlue ? 'XANH' : 'ĐỎ'}
+            {teamName ? teamName : `ĐỘI ${isBlue ? 'XANH' : 'ĐỎ'}`}
           </h2>
           
           {/* Flame streak indicator for Fire Speed Up */}

@@ -13,7 +13,7 @@ import { CountdownScreen } from './components/CountdownScreen';
 import { playCorrectSound, playIncorrectSound, playFinishSound, playVictorySound } from './utils/audio';
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzMCAektx3Z9xB0wll4_At1POZGPTTBqaojSa1YKxdMK8l8lLcad6dIr7K2LTlclpJD/exec";
+  "https://script.google.com/macros/s/AKfycbwiw9aSm9ebskEKHFwpennCsxjcSczqvjDTaQclMbam--TR1q6VTHS1bPn53NL-dbKu7Q/exec";
 
 const INITIAL_QUESTIONS: Question[] = [
   {
@@ -85,8 +85,8 @@ export default function App() {
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS);
   const [gameState, setGameState] = useState<GameState>('menu');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [studentName, setStudentName] = useState("");
-  const [studentClass, setStudentClass] = useState("");
+  const [teamAName, setTeamAName] = useState("Đội Xanh");
+  const [teamBName, setTeamBName] = useState("Đội Đỏ");
   const [sending, setSending] = useState(false);
   
   // Timer States
@@ -405,8 +405,8 @@ export default function App() {
 
     if (!summary) return;
 
-    if (!studentName.trim()) {
-      alert("Nhập họ tên.");
+    if (!teamAName.trim() || !teamBName.trim()) {
+      alert("Nhập tên cả hai đội thi đấu.");
       return;
     }
 
@@ -422,12 +422,12 @@ export default function App() {
         ) + "%";
 
       const details = `
-  Đội Xanh
+  ${teamAName} (Đội Xanh)
   Điểm: ${summary.blueScore}
   Đúng: ${summary.blueCorrect}
   Sai: ${summary.blueIncorrect}
 
-  Đội Đỏ
+  ${teamBName} (Đội Đỏ)
   Điểm: ${summary.redScore}
   Đúng: ${summary.redCorrect}
   Sai: ${summary.redIncorrect}
@@ -436,17 +436,19 @@ export default function App() {
 
   Kết quả: ${
         summary.winner == "blue"
-          ? "Đội Xanh"
+          ? teamAName
           : summary.winner == "red"
-          ? "Đội Đỏ"
+          ? teamBName
           : "Hòa"
       }
   `;
 
       const body = new URLSearchParams();
 
-      body.append("hoTen", studentName);
-      body.append("lop", studentClass);
+      body.append("hoTen", teamAName);
+      body.append("lop", teamBName);
+      body.append("teamA", teamAName);
+      body.append("teamB", teamBName);
       body.append(
         "diem",
         Math.max(summary.blueScore, summary.redScore).toString()
@@ -516,19 +518,19 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             className="flex-1 flex flex-col items-center justify-center p-4 max-w-4xl mx-auto w-full text-center my-2"
           >
-            {/* Student Name & Class Inputs - Moved to Top */}
+            {/* Team Names Inputs */}
             <div className="mb-4 flex flex-col sm:flex-row gap-3 w-full max-w-md bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-sm z-10">
               <input
                 className="flex-grow border-2 border-emerald-200 focus:border-emerald-500 outline-none rounded-lg px-3 py-2 text-sm transition-all"
-                placeholder="Họ và tên học sinh"
-                value={studentName}
-                onChange={(e)=>setStudentName(e.target.value)}
+                placeholder="Tên đội A"
+                value={teamAName}
+                onChange={(e)=>setTeamAName(e.target.value)}
               />
               <input
-                className="w-full sm:w-32 border-2 border-emerald-200 focus:border-emerald-500 outline-none rounded-lg px-3 py-2 text-sm transition-all"
-                placeholder="Lớp"
-                value={studentClass}
-                onChange={(e)=>setStudentClass(e.target.value)}
+                className="flex-grow border-2 border-emerald-200 focus:border-emerald-500 outline-none rounded-lg px-3 py-2 text-sm transition-all"
+                placeholder="Tên đội B"
+                value={teamBName}
+                onChange={(e)=>setTeamBName(e.target.value)}
               />
             </div>
 
@@ -620,6 +622,7 @@ export default function App() {
                 selectedAnswerIndex={blueTeam.selectedAnswerIndex}
                 onAnswerSelect={(idx) => handleAnswerSelect('blue', idx)}
                 revealCorrect={revealCorrectBlue}
+                teamName={teamAName}
               />
 
               {/* Centered VS divider & Timer */}
@@ -671,6 +674,7 @@ export default function App() {
                 selectedAnswerIndex={redTeam.selectedAnswerIndex}
                 onAnswerSelect={(idx) => handleAnswerSelect('red', idx)}
                 revealCorrect={revealCorrectRed}
+                teamName={teamBName}
               />
             </div>
 
@@ -695,6 +699,8 @@ export default function App() {
               onReplay={handleReplay}
               sendScore={sendScore}
               sending={sending}
+              teamAName={teamAName}
+              teamBName={teamBName}
           />
         )}
 

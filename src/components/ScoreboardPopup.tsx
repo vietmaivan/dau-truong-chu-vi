@@ -8,9 +8,18 @@ interface ScoreboardPopupProps {
   onReplay: (shouldShuffle: boolean) => void;
   sendScore: () => Promise<void>;
   sending: boolean;
+  teamAName?: string;
+  teamBName?: string;
 }
 
-export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onReplay, sendScore, sending }) => {
+export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({
+  summary,
+  onReplay,
+  sendScore,
+  sending,
+  teamAName = 'Đội A',
+  teamBName = 'Đội B'
+}) => {
   const [shouldShuffle, setShouldShuffle] = useState<boolean>(true);
 
   const isBlueWinner = summary.winner === 'blue';
@@ -67,7 +76,7 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
               <h2 className={`text-3xl md:text-4xl font-black uppercase tracking-tight ${
                 isBlueWinner ? 'text-blue-600' : 'text-red-600'
               }`}>
-                {isBlueWinner ? 'ĐỘI XANH CHIẾN THẮNG!' : 'ĐỘI ĐỎ CHIẾN THẮNG!'}
+                {isBlueWinner ? `${teamAName.toUpperCase()} CHIẾN THẮNG!` : `${teamBName.toUpperCase()} CHIẾN THẮNG!`}
               </h2>
               <p className="text-slate-600 font-semibold text-sm mt-1">
                 Chúc mừng nhà vô địch tính nhanh chu vi! 👑
@@ -82,7 +91,7 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
           <div className="bg-blue-50 border-4 border-blue-200 rounded-2xl p-3 sm:p-4 flex flex-col justify-between shadow-sm">
             <div className="text-center">
               <span className="bg-blue-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
-                Đội Xanh
+                {teamAName}
               </span>
               <div className="text-3xl sm:text-4xl font-black text-blue-700 mt-2 sm:mt-3 font-mono">
                 {summary.blueScore} <span className="text-lg">điểm</span>
@@ -111,7 +120,7 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
           <div className="bg-red-50 border-4 border-red-200 rounded-2xl p-3 sm:p-4 flex flex-col justify-between shadow-sm">
             <div className="text-center">
               <span className="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
-                Đội Đỏ
+                {teamBName}
               </span>
               <div className="text-3xl sm:text-4xl font-black text-red-700 mt-2 sm:mt-3 font-mono">
                 {summary.redScore} <span className="text-lg">điểm</span>
