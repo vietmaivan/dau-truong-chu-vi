@@ -474,7 +474,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen max-h-screen bg-[#E0F2F1] font-sans text-slate-800 flex flex-col justify-between overflow-hidden relative">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen bg-[#E0F2F1] font-sans text-slate-800 flex flex-col justify-between overflow-y-auto lg:overflow-hidden relative">
       
       {/* Primary Header Bar */}
       <header className="bg-[#2D5A27] text-white py-2.5 px-6 shadow-md flex justify-between items-center z-30 select-none shrink-0">
@@ -594,7 +594,7 @@ export default function App() {
             key="playing"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 flex flex-col justify-between w-full h-full min-h-0 overflow-hidden"
+            className="flex-1 flex flex-col justify-between w-full lg:h-full lg:min-h-0 lg:overflow-hidden"
           >
             {/* Top Running Track Area */}
             <TrackView
@@ -607,7 +607,7 @@ export default function App() {
             />
 
             {/* Middle Arena Area */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-3 p-2.5 max-w-[1400px] w-full mx-auto items-stretch min-h-0 overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-3 p-2.5 max-w-[1400px] w-full mx-auto items-stretch lg:min-h-0 lg:overflow-hidden">
               
               {/* Left Column: Blue Team Controls */}
               <TeamPanel
@@ -690,22 +690,12 @@ export default function App() {
 
         {/* State 4: ENDED SCREEN (SCOREBOARD POPUP) */}
         {gameState === 'ended' && summary && (
-          <>
-            <ScoreboardPopup
-                summary={summary}
-                onReplay={handleReplay}
-            />
-
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-              <button
-                onClick={sendScore}
-                disabled={sending}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-xl shadow-xl transition-all cursor-pointer"
-              >
-                {sending ? "Đang gửi..." : "📤 Gửi điểm lên Google Sheet"}
-              </button>
-            </div>
-          </>
+          <ScoreboardPopup
+              summary={summary}
+              onReplay={handleReplay}
+              sendScore={sendScore}
+              sending={sending}
+          />
         )}
 
       </AnimatePresence>

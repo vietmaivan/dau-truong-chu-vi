@@ -6,9 +6,11 @@ import { GameSummary } from '../types';
 interface ScoreboardPopupProps {
   summary: GameSummary;
   onReplay: (shouldShuffle: boolean) => void;
+  sendScore: () => Promise<void>;
+  sending: boolean;
 }
 
-export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onReplay }) => {
+export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onReplay, sendScore, sending }) => {
   const [shouldShuffle, setShouldShuffle] = useState<boolean>(true);
 
   const isBlueWinner = summary.winner === 'blue';
@@ -23,12 +25,12 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
   };
 
   return (
-    <div className="fixed inset-0 bg-[#2D5A27]/85 z-50 flex items-center justify-center p-4 backdrop-blur-md select-none overflow-y-auto">
+    <div className="fixed inset-0 bg-[#2D5A27]/85 z-50 flex justify-center items-start sm:items-center p-3 sm:p-6 backdrop-blur-md select-none overflow-y-auto">
       <motion.div
         initial={{ scale: 0.9, y: 30, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         transition={{ type: 'spring', damping: 15, stiffness: 100 }}
-        className="bg-white border-8 border-[#388E3C] rounded-3xl max-w-2xl w-full p-6 shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative overflow-hidden"
+        className="bg-white border-8 border-[#388E3C] rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative overflow-hidden my-auto"
       >
         {/* Colorful top bar flag */}
         <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500" />
@@ -75,21 +77,21 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
         </div>
 
         {/* Content Box */}
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
           {/* Blue Stats Column */}
-          <div className="bg-blue-50 border-4 border-blue-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div className="bg-blue-50 border-4 border-blue-200 rounded-2xl p-3 sm:p-4 flex flex-col justify-between shadow-sm">
             <div className="text-center">
               <span className="bg-blue-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
                 Đội Xanh
               </span>
-              <div className="text-4xl font-black text-blue-700 mt-3 font-mono">
+              <div className="text-3xl sm:text-4xl font-black text-blue-700 mt-2 sm:mt-3 font-mono">
                 {summary.blueScore} <span className="text-lg">điểm</span>
               </div>
             </div>
 
-            <div className="border-t border-blue-200/50 my-3" />
+            <div className="border-t border-blue-200/50 my-2 sm:my-3" />
 
-            <div className="space-y-2 text-sm text-slate-700">
+            <div className="space-y-1.5 sm:space-y-2 text-sm text-slate-700">
               <div className="flex justify-between items-center bg-white/60 p-1.5 rounded-lg">
                 <span className="flex items-center gap-1 font-medium text-xs text-emerald-600">
                   <ThumbsUp className="w-3.5 h-3.5" /> Trả lời ĐÚNG
@@ -106,19 +108,19 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
           </div>
 
           {/* Red Stats Column */}
-          <div className="bg-red-50 border-4 border-red-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div className="bg-red-50 border-4 border-red-200 rounded-2xl p-3 sm:p-4 flex flex-col justify-between shadow-sm">
             <div className="text-center">
               <span className="bg-red-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">
                 Đội Đỏ
               </span>
-              <div className="text-4xl font-black text-red-700 mt-3 font-mono">
+              <div className="text-3xl sm:text-4xl font-black text-red-700 mt-2 sm:mt-3 font-mono">
                 {summary.redScore} <span className="text-lg">điểm</span>
               </div>
             </div>
 
-            <div className="border-t border-red-200/50 my-3" />
+            <div className="border-t border-red-200/50 my-2 sm:my-3" />
 
-            <div className="space-y-2 text-sm text-slate-700">
+            <div className="space-y-1.5 sm:space-y-2 text-sm text-slate-700">
               <div className="flex justify-between items-center bg-white/60 p-1.5 rounded-lg">
                 <span className="flex items-center gap-1 font-medium text-xs text-emerald-600">
                   <ThumbsUp className="w-3.5 h-3.5" /> Trả lời ĐÚNG
@@ -136,19 +138,38 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
         </div>
 
         {/* Match Time summary */}
-        <div className="mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3 flex justify-between items-center">
-          <span className="text-slate-700 font-bold flex items-center gap-1.5 text-sm">
+        <div className="mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3 flex justify-between items-center text-xs sm:text-sm">
+          <span className="text-slate-700 font-bold flex items-center gap-1.5">
             <Timer className="w-4 h-4 text-amber-500" /> Thời gian hoàn thành:
           </span>
-          <span className="text-slate-900 font-extrabold text-sm bg-yellow-200/60 px-3 py-1 rounded-full">
+          <span className="text-slate-900 font-extrabold bg-yellow-200/60 px-3 py-1 rounded-full">
             {formatDuration(summary.durationSeconds)}
           </span>
         </div>
 
         {/* Action Controls */}
-        <div className="mt-6 flex flex-col items-center gap-4">
+        <div className="mt-5 sm:mt-6 flex flex-col items-center gap-3 sm:gap-4 w-full">
+          {/* Send Score Button */}
+          <button
+            onClick={sendScore}
+            disabled={sending}
+            className="w-full sm:w-2/3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-black text-sm sm:text-base py-3 sm:py-4 rounded-2xl shadow-[0_6px_0_#065f46] hover:shadow-[0_4px_0_#065f46] active:shadow-none hover:translate-y-[2px] active:translate-y-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed uppercase"
+          >
+            <span>{sending ? "Đang gửi điểm..." : "📤 Gửi điểm lên Google Sheet"}</span>
+          </button>
+
+          {/* Replay Button */}
+          <button
+            id="replay-btn"
+            onClick={() => onReplay(shouldShuffle)}
+            className="w-full sm:w-2/3 bg-gradient-to-r from-[#388E3C] to-[#2D5A27] hover:from-[#2D5A27] hover:to-[#1E3D1A] text-white font-black text-sm sm:text-base py-3 sm:py-4 rounded-2xl shadow-[0_6px_0_#1E3D1A] hover:shadow-[0_4px_0_#1E3D1A] active:shadow-none hover:translate-y-[2px] active:translate-y-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span>CHƠI LẠI NGAY</span>
+          </button>
+
           {/* Shuffle Option Checkbox */}
-          <label className="inline-flex items-center gap-2 cursor-pointer bg-slate-100 px-4 py-2 rounded-full border border-slate-200 transition-all hover:bg-slate-200">
+          <label className="inline-flex items-center gap-2 cursor-pointer bg-slate-100 px-4 py-2 rounded-full border border-slate-200 transition-all hover:bg-slate-200 mt-1">
             <input
               type="checkbox"
               checked={shouldShuffle}
@@ -159,16 +180,6 @@ export const ScoreboardPopup: React.FC<ScoreboardPopupProps> = ({ summary, onRep
               🔀 Xáo trộn câu hỏi khi chơi lại
             </span>
           </label>
-
-          {/* Replay Button */}
-          <button
-            id="replay-btn"
-            onClick={() => onReplay(shouldShuffle)}
-            className="w-full sm:w-2/3 bg-gradient-to-r from-[#388E3C] to-[#2D5A27] hover:from-[#2D5A27] hover:to-[#1E3D1A] text-white font-black text-lg py-4 rounded-2xl shadow-[0_6px_0_#1E3D1A] hover:shadow-[0_4px_0_#1E3D1A] active:shadow-none hover:translate-y-[2px] active:translate-y-[6px] transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <RotateCcw className="w-5 h-5" />
-            <span>CHƠI LẠI NGAY</span>
-          </button>
         </div>
       </motion.div>
     </div>
